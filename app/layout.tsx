@@ -31,9 +31,9 @@ export default function RootLayout({
       >
         <ClientSidebar>
           <ThemeTogglerButton className='absolute right-6 top-4 hover:cursor-pointer' />
+          {children}
         </ClientSidebar>
 
-        {children}
       </body>
     </html>
   );
