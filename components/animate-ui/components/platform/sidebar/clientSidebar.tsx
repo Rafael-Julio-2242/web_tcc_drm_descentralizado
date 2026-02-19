@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Bot, KeyRound, Sparkles, User } from "lucide-react";
+import { Bell, Bot, Coins, Home, KeyRound, Sparkles, User } from "lucide-react";
 import {
   SidebarData,
   SidebarFooterData,
@@ -50,13 +50,32 @@ export default function ClientSidebar({
   };
 
   const agentSection: SidebarSectionData = {
-   title: "Agents",
+    title: "Agents",
   };
 
   const sidebarData: SidebarData = {
     header: sidebarHeaderData,
     footer: sidebarFooterData,
-    content: [],
+    content: [
+      {
+        title: "Home",
+        url: "/",
+        icon: <Home />,
+      },
+      {
+        title: "Tokens",
+      },
+      {
+        title: "Meus Tokens",
+        url: "/tokens",
+        icon: <Coins />,
+      },
+      {
+        title: "Criar Token",
+        url: "/tokens/criar",
+        icon: <Sparkles />,
+      },
+    ],
   };
 
   return (

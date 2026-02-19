@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeTogglerButton } from "@/components/animate-ui/components/buttons/theme-toggler";
 import ClientSidebar from "@/components/animate-ui/components/platform/sidebar/clientSidebar";
+import { Toaster } from "@/components/ui/sonner";
+import { WalletButton } from "@/components/ui/wallet-button";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,9 +32,13 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ClientSidebar>
-          <ThemeTogglerButton className='absolute right-6 top-4 hover:cursor-pointer' />
+          <div className="absolute right-6 top-4 flex items-center gap-4">
+            <WalletButton />
+            <ThemeTogglerButton className="hover:cursor-pointer relative" />
+          </div>
           {children}
         </ClientSidebar>
+        <Toaster />
 
       </body>
     </html>
