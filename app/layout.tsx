@@ -16,10 +16,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "DeDRM",
-  description: "Descentralized DRM System",
-};
+import { WalletProvider } from "@/context/wallet-context";
 
 export default function RootLayout({
   children,
@@ -31,13 +28,15 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ClientSidebar>
-          <div className="absolute right-6 top-4 flex items-center gap-4">
-            <WalletButton />
-            <ThemeTogglerButton className="hover:cursor-pointer relative" />
-          </div>
-          {children}
-        </ClientSidebar>
+        <WalletProvider>
+          <ClientSidebar>
+            <div className="absolute right-6 top-4 flex items-center gap-4">
+              <WalletButton />
+              <ThemeTogglerButton className="hover:cursor-pointer relative" />
+            </div>
+            {children}
+          </ClientSidebar>
+        </WalletProvider>
         <Toaster />
 
       </body>
