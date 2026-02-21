@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           app_size: number
           application_id: string
+          contract_address: string
           created_at: string
           id: number
           licences_emited: number
@@ -29,6 +30,7 @@ export type Database = {
         Insert: {
           app_size: number
           application_id: string
+          contract_address?: string
           created_at?: string
           id?: number
           licences_emited?: number
@@ -40,6 +42,7 @@ export type Database = {
         Update: {
           app_size?: number
           application_id?: string
+          contract_address?: string
           created_at?: string
           id?: number
           licences_emited?: number

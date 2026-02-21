@@ -113,3 +113,39 @@ export async function getApplicationDownloadUrl(applicationId: string, expiresIn
 
     return data.signedUrl;
 }
+
+/**
+ * Emits new licenses for a specific application by increasing the licences_emited counter.
+ */
+export async function emitLicenses(applicationId: number, amount: number) {
+    if (amount <= 0) {
+        throw new Error("Amount must be greater than 0");
+    }
+
+    const { data: currentApp, error: fetchError } = await supabase
+        .from("application")
+        .select("licences_emited")
+        .eq("id", applicationId)
+        .single();
+
+    if (fetchError) {
+        console.error(`Error fetching application ${applicationId}:`, fetchError);
+        throw new Error("Failed to fetch application");
+    }
+
+    const newAmount = (currentApp.licences_emited || 0) + amount;
+
+    const { data, error } = await supabase
+        .from("application")
+        .update({ licences_emited: newAmount })
+        .eq("id", applicationId)
+        .select()
+        .single();
+
+    if (error) {
+        console.error(`Error emitting licenses for application ${applicationId}:`, error);
+        throw new Error("Failed to emit licenses");
+    }
+
+    return data as Tables<"application">;
+}

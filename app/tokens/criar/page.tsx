@@ -9,6 +9,8 @@ import { successToast, errorToast } from "@/lib/toast-utils"
 import Link from "next/link"
 import { ArrowLeft, Upload, FileArchive, ShieldCheck, Info } from "lucide-react"
 import { useState } from "react"
+import { ethers } from "ethers"
+import GetDigitalAssetFactoryAbi from "@/server/actions/getFactoryAbi"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -57,7 +59,7 @@ type CriarTokenOutput = z.output<typeof criarTokenSchema>
 
 export default function CriarTokenPage() {
     const [fileName, setFileName] = useState<string | null>(null)
-    const { address, connected, connectWallet } = useConnectWallet()
+    const { address, connected, connectWallet, signer } = useConnectWallet()
 
     const {
         register,
@@ -105,7 +107,53 @@ export default function CriarTokenPage() {
                 return
             }
 
-            console.log("Iniciando upload e criação para:", data.name)
+            // TODO Implementar criação do Token
+
+            if (!signer) {
+                throw new Error("Wallet não conectada ou signer indisponível.")
+            }
+
+            const factoryAddress = process.env.NEXT_PUBLIC_FACTORY_ADDRESS
+            if (!factoryAddress) {
+                throw new Error("Endereço do Factory não configurado (.env).")
+            }
+
+            const factoryData = await GetDigitalAssetFactoryAbi()
+            const factoryContract = new ethers.Contract(
+                factoryAddress,
+                factoryData.abi,
+                signer
+            )
+
+            // Chamada do contrato para criar o token (createToken no Factory)
+            const tx = await factoryContract.createToken(
+                data.name,
+                data.symbol,
+                data.initialSupply ?? 0
+            )
+
+            const receipt = await tx.wait()
+
+            let contractAddress = ""
+            if (receipt && receipt.logs) {
+                for (const log of receipt.logs) {
+                    try {
+                        const parsedLog = factoryContract.interface.parseLog(log)
+                        if (parsedLog && parsedLog.name === 'TokenCreated') {
+                            contractAddress = parsedLog.args[0]
+                            break
+                        }
+                    } catch (e) {
+                        // Ignora logs que não pertencem ao nosso contrato/Factory
+                    }
+                }
+            }
+
+            if (!contractAddress) {
+                throw new Error("Não foi possível identificar o endereço do contrato recém-criado nos logs.")
+            }
+
+            console.log("[DEBUG] Endereço do contrato recém-criado:", contractAddress);
 
             await createApplication(
                 {
@@ -114,6 +162,7 @@ export default function CriarTokenPage() {
                     owner_wallet: address,
                     licences_emited: data.initialSupply ?? 0,
                     mainfile_name: data.appFileName,
+                    contract_address: contractAddress
                 },
                 fileToUpload
             )
