@@ -30,6 +30,7 @@ import {
     CardTitle,
 } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
+import { WrappApplication } from "@/server/actions/wrapApplication"
 
 const criarTokenSchema = z.object({
     name: z.string().min(1, "Nome da aplicação é obrigatório"),
@@ -91,6 +92,15 @@ export default function CriarTokenPage() {
         }
     }
 
+    function downloadFile(url: string) {
+        const link = document.createElement("a")
+        link.href = url
+        link.download = "download"
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+    }
+
     async function onSubmit(data: CriarTokenOutput) {
         if (!connected || !address) {
             errorToast("Wallet não conectada", "Por favor, conecte sua wallet antes de prosseguir.")
@@ -106,8 +116,6 @@ export default function CriarTokenPage() {
                 errorToast("Arquivo ausente", "Por favor, selecione um arquivo .zip")
                 return
             }
-
-            // TODO Implementar criação do Token
 
             if (!signer) {
                 throw new Error("Wallet não conectada ou signer indisponível.")
@@ -155,6 +163,20 @@ export default function CriarTokenPage() {
 
             console.log("[DEBUG] Endereço do contrato recém-criado:", contractAddress);
 
+            // TODO Testar
+            const wrapResponse = await WrappApplication({
+                chain: "Ethereum", // TODO Alterar pra ser dinâmico
+                contractId: contractAddress,
+                execPath: data.appFileName,
+                file: fileToUpload
+            });
+
+            if (!wrapResponse.success) {
+                throw new Error(wrapResponse.message);
+            }
+
+            downloadFile(wrapResponse.download_url);
+
             await createApplication(
                 {
                     name: data.name,
@@ -166,6 +188,8 @@ export default function CriarTokenPage() {
                 },
                 fileToUpload
             )
+
+
 
             successToast(
                 "Aplicação Criada",
