@@ -30,12 +30,17 @@ export async function WrappApplication(params: WrapApplicationParams): Promise<W
     const res = await fetch(`${url}/wrap`, {
         method: "POST",
         body: bodyData,
-        headers: {
-            "Content-Type": "multipart/form-data",
-        },
     })
 
-    const data = await res.json();
+    let data = await res.json() as WrappApplicationResponse;
+
+    if (!data.success) {
+        throw new Error(data.message);
+    }
+
+    data.download_url = `${url}${data.download_url}`;
+
+    console.log('[FULL DOWNLOAD URL]: ', data.download_url);
 
     return data;
 }

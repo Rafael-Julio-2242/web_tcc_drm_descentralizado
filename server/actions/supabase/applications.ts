@@ -43,13 +43,20 @@ export async function getApplicationById(id: number) {
  */
 export async function createApplication(
     application: Omit<Tables<"application">, "id" | "created_at" | "application_id" | "app_size">,
-    file: File
+    fileDownloadUrl: string
 ) {
     const bucketName = process.env.SUPABASE_BUCKET_NAME;
 
     if (!bucketName) {
         throw new Error("Missing SUPABASE_BUCKET_NAME environment variable");
     }
+
+    const resGetWrappedFile = await fetch(fileDownloadUrl);
+    const wrappedFileBlob = await resGetWrappedFile.blob();
+
+    const file = new File([wrappedFileBlob], application.mainfile_name, {
+        type: wrappedFileBlob.type,
+    });
 
     // Generate a unique path for the file
     const fileExt = file.name.split(".").pop();

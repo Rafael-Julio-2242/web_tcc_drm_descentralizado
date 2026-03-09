@@ -133,6 +133,10 @@ export default function CriarTokenPage() {
                 signer
             )
 
+            console.log('[FACTORY ADDRESS]: ', factoryAddress);
+            console.log('[FACTORY DATA]: ', factoryData);
+            console.log('[FACTORY CONTRACT]: ', factoryContract);
+
             // Chamada do contrato para criar o token (createToken no Factory)
             const tx = await factoryContract.createToken(
                 data.name,
@@ -175,8 +179,6 @@ export default function CriarTokenPage() {
                 throw new Error(wrapResponse.message);
             }
 
-            downloadFile(wrapResponse.download_url);
-
             await createApplication(
                 {
                     name: data.name,
@@ -186,9 +188,8 @@ export default function CriarTokenPage() {
                     mainfile_name: data.appFileName,
                     contract_address: contractAddress
                 },
-                fileToUpload
+                wrapResponse.download_url
             )
-
 
 
             successToast(
